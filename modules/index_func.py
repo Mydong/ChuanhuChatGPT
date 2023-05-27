@@ -83,7 +83,7 @@ def get_documents(file_src):
             logging.error(f"Error loading file: {filename}")
             traceback.print_exc()
 
-        texts = text_splitter.split_documents(texts)
+        texts = text_splitter.split_documents([texts])
         documents.extend(texts)
     logging.debug("Documents loaded.")
     return documents
@@ -136,6 +136,6 @@ def construct_index(
 
         except Exception as e:
             import traceback
-            logging.error("索引构建失败！", e)
+            logging.error("索引构建失败！%s", e)
             traceback.print_exc()
             return None

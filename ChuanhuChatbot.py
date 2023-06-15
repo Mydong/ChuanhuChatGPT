@@ -89,7 +89,6 @@ with gr.Blocks(css=customCSS, theme=small_and_beautiful_theme) as demo:
                     with gr.Row():
                         single_turn_checkbox = gr.Checkbox(label=i18n("单轮对话"), value=False)
                         use_websearch_checkbox = gr.Checkbox(label=i18n("使用在线搜索"), value=False)
-                        # render_latex_checkbox = gr.Checkbox(label=i18n("渲染LaTeX公式"), value=render_latex, interactive=True, elem_id="render_latex_checkbox")
                     language_select_dropdown = gr.Dropdown(
                         label=i18n("选择回复语言（针对搜索&索引功能）"),
                         choices=REPLY_LANGUAGES,
@@ -162,7 +161,7 @@ with gr.Blocks(css=customCSS, theme=small_and_beautiful_theme) as demo:
 
                 with gr.Tab(label=i18n("高级")):
                     gr.Markdown(i18n("# ⚠️ 务必谨慎更改 ⚠️\n\n如果无法使用请恢复默认设置"))
-                    gr.HTML(APPEARANCE_SWITCHER, elem_classes="insert_block")
+                    gr.HTML(get_html("appearance_switcher.html").format(label=i18n("切换亮暗色主题")), elem_classes="insert_block")
                     use_streaming_checkbox = gr.Checkbox(
                             label=i18n("实时传输回答"), value=True, visible=ENABLE_STREAMING_OPTION
                         )
@@ -266,7 +265,7 @@ with gr.Blocks(css=customCSS, theme=small_and_beautiful_theme) as demo:
                         default_btn = gr.Button(i18n("🔙 恢复默认设置"))
 
     gr.Markdown(CHUANHU_DESCRIPTION, elem_id="description")
-    gr.HTML(FOOTER.format(versions=versions_html()), elem_id="footer")
+    gr.HTML(get_html("footer.html").format(versions=versions_html()), elem_id="footer")
 
     # https://github.com/gradio-app/gradio/pull/3296
     def create_greeting(request: gr.Request):
@@ -477,6 +476,3 @@ if __name__ == "__main__":
         favicon_path="./assets/favicon.ico",
         inbrowser=not dockerflag, # 禁止在docker下开启inbrowser
     )
-    # demo.queue(concurrency_count=CONCURRENT_COUNT).launch(server_name="0.0.0.0", server_port=7860, share=False) # 可自定义端口
-    # demo.queue(concurrency_count=CONCURRENT_COUNT).launch(server_name="0.0.0.0", server_port=7860,auth=("在这里填写用户名", "在这里填写密码")) # 可设置用户名与密码
-    # demo.queue(concurrency_count=CONCURRENT_COUNT).launch(auth=("在这里填写用户名", "在这里填写密码")) # 适合Nginx反向代理

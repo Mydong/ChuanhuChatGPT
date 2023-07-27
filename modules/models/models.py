@@ -87,7 +87,7 @@ class OpenAIClient(BaseLLMModel):
             try:
                 usage_data = self._get_billing_data(usage_url)
             except Exception as e:
-                logging.error(f"获取API使用情况失败: " + str(e))
+                # logging.error(f"获取API使用情况失败: " + str(e))
                 if "Invalid authorization header" in str(e):
                     return i18n("**获取API使用情况失败**，需在填写`config.json`中正确填写sensitive_id")
                 elif "Incorrect API key provided: sess" in str(e):
@@ -182,7 +182,7 @@ class OpenAIClient(BaseLLMModel):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {sensitive_id}",
         }
-        
+
 
     def _get_billing_data(self, billing_url):
         with retrieve_proxy():
@@ -616,6 +616,9 @@ def get_model(
             from .Google_PaLM import Google_PaLM_Client
             access_key = os.environ.get("GOOGLE_PALM_API_KEY")
             model = Google_PaLM_Client(model_name, access_key, user_name=user_name)
+        elif model_type == ModelType.LangchainChat:
+            from .azure import Azure_OpenAI_Client
+            model = Azure_OpenAI_Client(model_name, user_name=user_name)
         elif model_type == ModelType.Unknown:
             raise ValueError(f"未知模型: {model_name}")
         logging.info(msg)

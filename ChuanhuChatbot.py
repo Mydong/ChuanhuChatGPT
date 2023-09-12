@@ -456,6 +456,7 @@ with gr.Blocks(theme=small_and_beautiful_theme) as demo:
 
             with gr.Box(elem_id="web-config", visible=False):
                 gr.HTML(get_html('web_config.html').format(
+                    enableCheckUpdate_config=check_update,
                     hideHistoryWhenNotLoggedIn_config=hide_history_when_not_logged_in,
                     forView_i18n=i18n("仅供查看"),
                     deleteConfirm_i18n_pref=i18n("你真的要删除 "),
@@ -468,6 +469,7 @@ with gr.Blocks(theme=small_and_beautiful_theme) as demo:
                     regenerate_i18n=i18n("重新生成"),
                     deleteRound_i18n=i18n("删除这轮问答"),
                     renameChat_i18n=i18n("重命名该对话"),
+                    validFileName_i18n=i18n("请输入有效的文件名，不要包含以下特殊字符："),
                 ))
             with gr.Box(elem_id="fake-gradio-components", visible=False):
                 updateChuanhuBtn = gr.Button(
@@ -553,7 +555,7 @@ with gr.Blocks(theme=small_and_beautiful_theme) as demo:
 
     auto_name_chat_history_args = dict(
         fn=auto_name_chat_history,
-        inputs=[current_model, name_chat_method, user_question, chatbot, user_name, language_select_dropdown],
+        inputs=[current_model, name_chat_method, user_question, chatbot, user_name, single_turn_checkbox],
         outputs=[historySelectList],
         show_progress=False,
     )

@@ -338,6 +338,7 @@ body.popup-open {
 }
 #chatbot-header .gradio-dropdown > label > .wrap {
     background: none;
+    box-shadow: none;
     padding-left: 8px;
 }
 #model-select-dropdown > label > span[data-testid="block-info"]  {
@@ -1076,6 +1077,10 @@ input:checked + .chatbot-input-more-span {
 }
 .is-outdated .show-on-outdated {
     display: block;
+}
+
+.disable-update .show-on-latest, .disable-update .show-on-outdated {
+    display: none;
 }
 
 #chatbot-area.no-menu #chatbot-header {

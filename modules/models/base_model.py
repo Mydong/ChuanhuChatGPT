@@ -78,7 +78,7 @@ def get_action_description(text):
     action_name = json_dict['action']
     action_input = json_dict['action_input']
     if action_name != "Final Answer":
-        return f'<!-- S O PREFIX --><p class="agent-prefix">{action_name}: {action_input}\n\n</p><!-- E O PREFIX -->'
+        return f'<!-- S O PREFIX --><p class="agent-prefix">{action_name}: {action_input}\n</p><!-- E O PREFIX -->'
     else:
         return ""
 
@@ -213,7 +213,10 @@ class BaseLLMModel:
     ) -> None:
         self.history = []
         self.all_token_counts = []
-        self.model_name = model_name
+        if model_name in MODEL_METADATA:
+            self.model_name = MODEL_METADATA[model_name]["model_name"]
+        else:
+            self.model_name = model_name
         self.model_type = ModelType.get_type(model_name)
         try:
             self.token_upper_limit = MODEL_METADATA[model_name]["token_limit"]

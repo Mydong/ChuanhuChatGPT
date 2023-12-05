@@ -385,6 +385,7 @@ def save_file(filename, model, chatbot):
         "system": system,
         "history": history,
         "chatbot": chatbot,
+        "model_name": model.model_name,
         "single_turn": model.single_turn,
         "temperature": model.temperature,
         "top_p": model.top_p,
@@ -429,6 +430,7 @@ def sorted_by_last_modified_time(list, dir):
 
 
 def get_file_names_by_type(dir, filetypes=[".json"]):
+    os.makedirs(dir, exist_ok=True)
     logging.debug(f"获取文件名列表，目录为{dir}，文件类型为{filetypes}")
     files = []
     for type in filetypes:

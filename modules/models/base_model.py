@@ -279,6 +279,7 @@ class BaseLLMModel:
         self.system_prompt = config["system"]
         self.api_key = config["api_key"]
         self.api_host = config["api_host"]
+        self.stream = config["stream"]
 
         self.interrupted = False
         self.need_api_key = self.api_key is not None
@@ -299,6 +300,7 @@ class BaseLLMModel:
         self.default_frequency_penalty = config["frequency_penalty"]
         self.default_logit_bias = config["logit_bias"]
         self.default_user_identifier = user
+        self.default_stream = config["stream"]
 
         self.single_turn = self.default_single_turn
         self.temperature = self.default_temperature
@@ -588,7 +590,6 @@ class BaseLLMModel:
         self,
         inputs,
         chatbot,
-        stream=False,
         use_websearch=False,
         files=None,
         reply_language="中文",
@@ -671,7 +672,7 @@ class BaseLLMModel:
 
         start_time = time.time()
         try:
-            if stream:
+            if self.stream:
                 logging.debug("使用流式传输")
                 iter = self.stream_next_chatbot(
                     inputs,
@@ -732,7 +733,6 @@ class BaseLLMModel:
     def retry(
         self,
         chatbot,
-        stream=False,
         use_websearch=False,
         files=None,
         reply_language="中文",
@@ -758,7 +758,7 @@ class BaseLLMModel:
         iter = self.predict(
             inputs,
             chatbot,
-            stream=stream,
+            stream=self.stream,
             use_websearch=use_websearch,
             files=files,
             reply_language=reply_language,
@@ -861,6 +861,10 @@ class BaseLLMModel:
         self.single_turn = new_single_turn
         self.auto_save()
 
+    def set_streaming(self, new_streaming):
+        self.stream = new_streaming
+        self.auto_save()
+
     def reset(self, remain_system_prompt=False):
         self.history = []
         self.all_token_counts = []
@@ -882,6 +886,7 @@ class BaseLLMModel:
         self.frequency_penalty = self.default_frequency_penalty
         self.logit_bias = self.default_logit_bias
         self.user_identifier = self.default_user_identifier
+        self.stream = self.default_stream
 
         return (
             [],
@@ -899,6 +904,7 @@ class BaseLLMModel:
             self.frequency_penalty,
             self.logit_bias,
             self.user_identifier,
+            self.stream
         )
 
     def delete_first_conversation(self):
@@ -1050,6 +1056,7 @@ class BaseLLMModel:
             self.logit_bias = saved_json.get("logit_bias", self.logit_bias)
             self.user_identifier = saved_json.get("user_identifier", self.user_name)
             self.metadata = saved_json.get("metadata", self.metadata)
+            self.stream = saved_json.get("stream", self.stream)
             self.chatbot = saved_json["chatbot"]
             return (
                 os.path.basename(self.history_file_path)[:-5],
@@ -1066,6 +1073,7 @@ class BaseLLMModel:
                 self.frequency_penalty,
                 self.logit_bias,
                 self.user_identifier,
+                self.stream
             )
         except:
             # 没有对话历史或者对话历史解析失败
@@ -1086,6 +1094,7 @@ class BaseLLMModel:
                 self.frequency_penalty,
                 self.logit_bias,
                 self.user_identifier,
+                self.stream
             )
 
     def delete_chat_history(self, filename):

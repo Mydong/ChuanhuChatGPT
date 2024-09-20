@@ -27,7 +27,7 @@ import colorama
 
 from modules.presets import *
 from . import shared
-from modules.config import retrieve_proxy, hide_history_when_not_logged_in
+from modules.config import retrieve_proxy, hide_history_when_not_logged_in, admin_list
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -245,11 +245,27 @@ def convert_mdtext(md_text):  # deprecated
 
 def remove_html_tags(data):
     def clean_text(text):
-        # Remove all HTML tags
-        cleaned = re.sub(r'<[^>]+>', '', text)
-        # Remove any remaining HTML entities
-        cleaned = re.sub(r'&[#\w]+;', '', cleaned)
-        return cleaned.strip()
+        # Regular expression to match code blocks, including all newlines
+        code_block_pattern = r'(```[\s\S]*?```)'
+
+        # Split the text into code blocks and non-code blocks
+        parts = re.split(code_block_pattern, text)
+
+        cleaned_parts = []
+        for part in parts:
+            if part.startswith('```') and part.endswith('```'):
+                # This is a code block, keep it exactly as is
+                cleaned_parts.append(part)
+            else:
+                # This is not a code block, remove HTML tags
+                # Remove all HTML tags
+                cleaned = re.sub(r'<[^>]+>', '', part)
+                # Remove any remaining HTML entities
+                cleaned = re.sub(r'&[#\w]+;', '', cleaned)
+                cleaned_parts.append(cleaned)  # Don't strip here to preserve newlines
+
+        # Join the cleaned parts back together
+        return ''.join(cleaned_parts)
 
     return [
         [clean_text(item) for item in sublist]
@@ -438,17 +454,20 @@ def save_file(filename, model):
     with open(history_file_path, "w", encoding="utf-8") as f:
         json.dump(json_s, f, ensure_ascii=False, indent=4)
 
-    filename = os.path.basename(filename)
-    filename_md = filename[:-5] + ".md"
-    md_s = f"system: \n- {system} \n"
-    for data in history:
-        md_s += f"\n{data['role']}: \n- {data['content']} \n"
-    with open(
-        os.path.join(HISTORY_DIR, user_name, filename_md), "w", encoding="utf8"
-    ) as f:
-        f.write(md_s)
-    return os.path.join(HISTORY_DIR, user_name, filename)
+    save_md_file(history_file_path)
+    return history_file_path
 
+def save_md_file(json_file_path):
+    with open(json_file_path, "r", encoding="utf-8") as f:
+        json_data = json.load(f)
+
+    md_file_path = json_file_path[:-5] + ".md"
+    md_s = f"system: \n- {json_data['system']} \n"
+    for data in json_data['history']:
+        md_s += f"\n{data['role']}: \n- {data['content']} \n"
+
+    with open(md_file_path, "w", encoding="utf8") as f:
+        f.write(md_s)
 
 def sorted_by_pinyin(list):
     return sorted(list, key=lambda char: lazy_pinyin(char)[0][0])
@@ -725,7 +744,9 @@ def transfer_input(inputs):
     )
 
 
-def update_chuanhu():
+def update_chuanhu(username):
+    if username not in admin_list:
+        return gr.Markdown(value=i18n("no_permission_to_update_description"))
     from .repo import background_update
 
     print("[Updater] Trying to update...")
@@ -1525,3 +1546,6 @@ def setPlaceholder(model_name: str | None = "", model: BaseLLMModel | None = Non
             chatbot_ph_slogan_class = slogan_class,
             chatbot_ph_question_class = question_class
         )
+
+def download_file(path):
+    print(path)
